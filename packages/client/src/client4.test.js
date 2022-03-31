@@ -4,20 +4,8 @@
 import assert from 'assert';
 import nock from 'nock';
 
-import {ClientError, HEADER_X_VERSION_ID} from 'mattermost-redux/client/client4';
-import TestHelper from 'mattermost-redux/test/test_helper';
-import {isMinimumServerVersion} from 'mattermost-redux/utils/helpers';
-
-import {rudderAnalytics, RudderTelemetryHandler} from './rudder';
-
-jest.mock('rudder-sdk-js', () => {
-    const original = jest.requireActual('rudder-sdk-js');
-
-    return {
-        ...original,
-        track: jest.fn(),
-    };
-});
+import {ClientError, Client4, HEADER_X_VERSION_ID} from './client4';
+import {TelemetryHandler} from './telemetry';
 
 describe('Client4', () => {
     beforeAll(() => {
@@ -31,10 +19,11 @@ describe('Client4', () => {
     });
 
     describe('doFetchWithResponse', () => {
-        it('serverVersion should be set from response header', async () => {
-            const client = TestHelper.createClient4();
+        test('serverVersion should be set from response header', async () => {
+            const client = new Client4();
+            client.setUrl('http://mattermost.example.com');
 
-            assert.equal(client.serverVersion, '');
+            expect(client.serverVersion).toEqual('');
 
             nock(client.getBaseRoute()).
                 get('/users/me').
@@ -42,9 +31,7 @@ describe('Client4', () => {
 
             await client.getMe();
 
-            assert.equal(client.serverVersion, '5.0.0.5.0.0.abc123');
-            assert.equal(isMinimumServerVersion(client.serverVersion, 5, 0, 0), true);
-            assert.equal(isMinimumServerVersion(client.serverVersion, 5, 1, 0), false);
+            expect(client.serverVersion).toEqual('5.0.0.5.0.0.abc123');
 
             nock(client.getBaseRoute()).
                 get('/users/me').
@@ -52,18 +39,16 @@ describe('Client4', () => {
 
             await client.getMe();
 
-            assert.equal(client.serverVersion, '5.3.0.5.3.0.abc123');
-            assert.equal(isMinimumServerVersion(client.serverVersion, 5, 0, 0), true);
-            assert.equal(isMinimumServerVersion(client.serverVersion, 5, 1, 0), true);
+            expect(client.serverVersion).toEqual('5.3.0.5.3.0.abc123');
         });
     });
 
     describe('fetchWithGraphQL', () => {
         test('Should have correct graphql url', async () => {
-            const client = TestHelper.createClient4();
-            client.setUrl('http://community.mattermost.com');
+            const client = new Client4();
+            client.setUrl('http://mattermost.example.com');
 
-            assert.equal(client.getGraphQLUrl(), 'http://community.mattermost.com/api/v5/graphql');
+            expect(client.getGraphQLUrl).toEqual('http://mattermost.example.com/api/v5/graphql');
         });
     });
 });
@@ -92,16 +77,22 @@ describe('ClientError', () => {
 });
 
 describe('trackEvent', () => {
-    it('should call Rudder\'s track when a RudderTelemetryHandler is attached to Client4', () => {
-        const client = TestHelper.createClient4();
+    class TestTelemetryHandler extends TelemetryHandler {
+        trackEvent = jest.fn();
+        sendPage = jest.fn();
+    }
 
+    it('should call the attached RudderTelemetryHandler, if one is attached to Client4', () => {
+        const client = new Client4();
+        client.setUrl('http://mattermost.example.com');
+
+        expect(client.trackEvent('test', 'onClick')).not.toThrowError();
+
+        const handler = new TestTelemetryHandler();
+
+        client.setTelemetryHandler(handler);
         client.trackEvent('test', 'onClick');
 
-        expect(rudderAnalytics.track).not.toHaveBeenCalled();
-
-        client.setTelemetryHandler(new RudderTelemetryHandler());
-        client.trackEvent('test', 'onClick');
-
-        expect(rudderAnalytics.track).toHaveBeenCalledTimes(1);
+        expect(handler.trackEvent).toHaveBeenCalledTimes(1);
     });
 });
