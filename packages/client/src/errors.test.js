@@ -11,7 +11,7 @@ describe('cleanUrlForLogging', () => {
     const client = new Client4();
     client.setUrl(baseUrl);
 
-    const tests = [{
+    const testCases = [{
         name: 'should remove server URL',
         input: client.getUserRoute('me'),
         expected: `${client.urlVersion}/users/me`,
@@ -29,9 +29,9 @@ describe('cleanUrlForLogging', () => {
         expected: `${client.urlVersion}/users/me?<filtered>`,
     }];
 
-    for (const test of tests) {
-        test(test.name, () => {
-            expect(cleanUrlForLogging(baseUrl, test.input)).toEqual(test.expected);
+    for (const testCase of testCases) {
+        test(testCase.name, () => {
+            expect(cleanUrlForLogging(baseUrl, testCase.input)).toEqual(testCase.expected);
         });
     }
 });
