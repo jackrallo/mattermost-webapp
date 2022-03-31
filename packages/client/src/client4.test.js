@@ -1,7 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import assert from 'assert';
 import nock from 'nock';
 
 import {ClientError, Client4, HEADER_X_VERSION_ID} from './client4';
@@ -68,11 +67,11 @@ describe('ClientError', () => {
 
         const copy = {...error};
 
-        assert.strictEqual(copy.message, error.message);
-        assert.strictEqual(copy.intl, error.intl);
-        assert.strictEqual(copy.server_error_id, error.server_error_id);
-        assert.strictEqual(copy.status_code, error.status_code);
-        assert.strictEqual(copy.url, error.url);
+        expect(copy.message).toEqual(error.message);
+        expect(copy.intl).toEqual(error.intl);
+        expect(copy.server_error_id).toEqual(error.server_error_id);
+        expect(copy.status_code).toEqual(error.status_code);
+        expect(copy.url).toEqual(error.url);
     });
 });
 
