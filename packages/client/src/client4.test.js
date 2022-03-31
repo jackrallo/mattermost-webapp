@@ -54,7 +54,7 @@ describe('Client4', () => {
 });
 
 describe('ClientError', () => {
-    it('standard fields should be enumerable', () => {
+    test('standard fields should be enumerable', () => {
         const error = new ClientError('https://example.com', {
             message: 'This is a message',
             intl: {
@@ -82,7 +82,7 @@ describe('trackEvent', () => {
         sendPage = jest.fn();
     }
 
-    it('should call the attached RudderTelemetryHandler, if one is attached to Client4', () => {
+    test('should call the attached RudderTelemetryHandler, if one is attached to Client4', () => {
         const client = new Client4();
         client.setUrl('http://mattermost.example.com');
 
