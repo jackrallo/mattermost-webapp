@@ -155,7 +155,7 @@ export default class Client4 {
         connectionError: 'There appears to be a problem with your internet connection.',
         unknownError: 'We received an unexpected status code from the server.',
     };
-    userRoles?: string;
+    userRoles = '';
     telemetryHandler?: TelemetryHandler;
 
     getUrl() {
