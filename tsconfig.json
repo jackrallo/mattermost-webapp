@@ -21,7 +21,6 @@
     "jsx": "react",
     "baseUrl": ".",
     "paths": {
-        "@mattermost/types/*": ["packages/types/src/*"],
         "mattermost-redux/*": ["packages/mattermost-redux/src/*"],
         "reselect": ["packages/reselect/src"],
     }
@@ -35,5 +34,9 @@
     "!node_modules/@types",
     "storybook-static",
     "coverage"
+  ],
+  "references": [
+    {"path": "./packages/client/tsconfig.json"},
+    {"path": "./packages/types/tsconfig.json"},
   ]
 }

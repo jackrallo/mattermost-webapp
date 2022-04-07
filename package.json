@@ -300,6 +300,7 @@
     "make-emojis": "node --experimental-json-modules build/emoji/emoji_gen.mjs"
   },
   "workspaces": [
+    "packages/client",
     "packages/types"
   ]
 }
